@@ -97,29 +97,58 @@ Goal: build only what a brand-new user encounters in their first 20 minutes.
 
 ## Phase 5: Onboarding
 
-- [ ] **Chunk 13: Welcome page**
+- [x] **Chunk 13: Welcome page**
 
   > On first install, open a welcome page. Explain in plain language what OptOut does, what each permission is for, that it never reads payment info and nothing leaves the browser, how to pin the icon, and how the switch works.
 
   Done when: removing and reloading the extension opens the welcome page.
 
-## Phase 6: Real stores (one chunk per store)
+## Phase 6: Real stores
 
 You can't safely test selectors on a live checkout first, so use this process for each store:
 
-1. Go to the store's checkout page while logged in. Stop before clicking anything.
+1. Go to the store's checkout page. Stop before clicking anything. Save both versions if the store has them: logged in (e.g. Shop Pay) and guest (use an Incognito window).
 2. Press `Cmd+S` and choose "Webpage, Complete". Put the file in `~/Documents/extension/saved-pages/`.
 3. Prompt Claude with the chunk below.
 4. Reload the extension and revisit the live checkout. **Click nothing until the "🛡 Protected" label appears on every buy button.** If any buy button lacks the label, stop and report it.
 
-- [ ] **Chunk 14: Shopify stores**
+### Shopify (split into four chunks)
+
+Shopify checkouts don't share one address: Gymshark's is `us.checkout.gymshark.com`, others use their own domain, and Shop Pay uses `shop.app`. So Shopify must be recognized by URL path and page content, not by a list of hosts. That changes how every store is matched, so it's split up.
+
+Saved pages: `saved-pages/Checkout - Gymshark US.html` (Shop Pay, `shop.app`) and `saved-pages/Checkout - Gymshark US guest.html` (guest checkout).
+
+- [ ] **Chunk 14a: Match stores by URL pattern**
+
+  > Change `sites.ts` so a store can match by host **or** by a URL pattern on any host. Don't add Shopify yet.
+
+  Done when: the test store still works exactly as before (labels, blocking, confirmation, popup status), and 5175 still shows the red banner.
+
+- [ ] **Chunk 14b: Run protection on all sites**
+
+  > Make `content.ts` run on all sites, and make the warning script skip any page `content.ts` protects, so a page never shows both the red banner and Protected labels.
+
+  Done when: the test store is still protected, and 5175 still shows the banner.
+
+- [ ] **Chunk 14c: Add Shopify**
+
+  > Add a Shopify entry to `sites.ts` using both saved Gymshark pages. Cover Pay now and every express button (Shop Pay, PayPal, Google Pay, Venmo, and any under "Show more options"). Serve the saved pages on localhost at a Shopify-like path so we can test safely.
+
+  Done when: both saved pages show Protected labels on Pay now and all express buttons, the fake confirmation shows the right items and total, and there's no red banner.
+
+- [ ] **Chunk 14d: Live Shopify check**
+
+  > Walk me through checking a live Shopify checkout (Gymshark) without placing an order.
+
+  Done when: on the live checkout, every buy button has a Protected label. **Click nothing.**
+
+### Other stores
+
 - [ ] **Chunk 15: Amazon**
 - [ ] **Chunk 16: Target**
 - [ ] **Chunk 17: Walmart**
 
-  > Add [Shopify stores / Amazon / Target / Walmart] to `sites.ts` using the saved page in `saved-pages/<file>`. Include Buy Now / 1-Click / express pay buttons.
-
-  Do Shopify first: one config entry covers thousands of stores.
+  > Add [Amazon / Target / Walmart] to `sites.ts` using the saved page in `saved-pages/<file>`. Include Buy Now / 1-Click / express pay buttons.
 
   Amazon is the hardest. Buy Now and 1-Click appear on product pages, not just checkout, so it may take two chunks.
 
