@@ -7,7 +7,7 @@ export default defineManifest({
   name: 'Checkout Guardrail',
   version: pkg.version,
   description: 'Shop like normal. Skip the bill.',
-  permissions: ['storage'],
+  permissions: ['storage', 'activeTab'],
   action: {
     default_popup: 'index.html',
   },

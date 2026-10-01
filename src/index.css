@@ -76,3 +76,35 @@ body {
   font-size: 13px;
   color: #666;
 }
+
+.status {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.status.protected {
+  color: #1f9d55;
+}
+
+.status.protected::before {
+  background: #1f9d55;
+}
+
+.status.unprotected {
+  color: #666;
+}
+
+.status.unprotected::before {
+  background: #b0b0b0;
+}
