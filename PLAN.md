@@ -103,7 +103,7 @@ Goal: build only what a brand-new user encounters in their first 20 minutes.
 
   Done when: removing and reloading the extension opens the welcome page.
 
-## Phase 6: Real stores
+## Phase 6: Real stores (Shopify and Amazon only)
 
 You can't safely test selectors on a live checkout first, so use this process for each store:
 
@@ -142,15 +142,54 @@ Saved pages: `saved-pages/Checkout - Gymshark US.html` (Shop Pay, `shop.app`) an
 
   Done when: on the live checkout, every buy button has a Protected label. **Click nothing.**
 
+### Amazon (split into six chunks)
+
+Amazon is bigger than one entry for three reasons:
+- On product pages, **Buy Now and Add to Cart share one form**. The current rule ("block any submit of a form containing a buy button") would block Add to Cart too, so the core blocking logic has to change for every store.
+- Amazon has **two kinds of buy pages**: checkout ("Place your order") and product pages ("Buy Now", "Subscribe"). Each needs its own buttons, item/total selectors, and missing-button rule, so a store must support several page types.
+- The test server only serves pages at Shopify-style paths.
+
+Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) and `saved-pages/Amazon.com_ Amazon Brand - Presto! ...html` (product page with Buy Now and Subscribe & Save).
+
+- [x] **Chunk 15a: Block only buy-button submits**
+
+  > Change blocking so a form submit is blocked only when the button that triggered it is a buy button, not every submit of a form that contains one.
+
+  Done when: the test store and Shopify are still fully blocked, and a non-buy submit button in the same form as a buy button (add one to the test store) goes through.
+
+- [ ] **Chunk 15b: Page types per store**
+
+  > Let a store have several page types (e.g. checkout and product page), each with its own URL pattern, buy-button and express selectors, item/total selectors, and whether the missing-button warning applies.
+
+  Done when: the test store and Shopify behave exactly as before.
+
+- [ ] **Chunk 15c: Serve saved pages at their original paths**
+
+  > Change the saved-page test server to serve each page at the path it was saved from, still cleaned so it can't reach the real store.
+
+  Done when: the Gymshark and Amazon pages load on localhost with no requests to other websites, and the Shopify tests still pass.
+
+- [ ] **Chunk 15d: Amazon checkout**
+
+  > Add Amazon's checkout page ("Place your order") using the saved checkout page.
+
+  Done when: on the saved page, every Place your order button is labeled and blocked, and the confirmation shows the right items and total.
+
+- [ ] **Chunk 15e: Amazon product page**
+
+  > Add Amazon product pages: block Buy Now and Subscribe & Save, keep Add to Cart working, and show the confirmation with the product name and price. No missing-button warning on product pages.
+
+  Done when: on the saved product page, Buy Now and Subscribe are labeled and blocked, and Add to Cart is not blocked.
+
+- [ ] **Chunk 15f: Live Amazon check**
+
+  > Walk me through checking live Amazon pages without placing an order.
+
+  Done when: live product and checkout pages show labels on every buy button, Add to Cart still works, and pages don't feel slower. **On the checkout page, click nothing: Place your order charges immediately.**
+
 ### Other stores
 
-- [ ] **Chunk 15: Amazon**
-- [ ] **Chunk 16: Target**
-- [ ] **Chunk 17: Walmart**
-
-  > Add [Amazon / Target / Walmart] to `sites.ts` using the saved page in `saved-pages/<file>`. Include Buy Now / 1-Click / express pay buttons.
-
-  Amazon is the hardest. Buy Now and 1-Click appear on product pages, not just checkout, so it may take two chunks.
+Not planned. OptOut covers only Shopify and Amazon, the stores used most. Other stores get the red "can't protect" banner on their checkouts.
 
 ## Phase 7: Wrap-up
 
