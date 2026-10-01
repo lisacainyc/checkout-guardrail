@@ -94,6 +94,39 @@ export const sites: SiteConfig[] = [
       },
     ],
   },
+  {
+    // Listed after Shopify: the saved-page test server (localhost:5176) also
+    // serves Shopify pages, which must match Shopify first.
+    name: 'Amazon',
+    hosts: [
+      'www.amazon.com',
+      // TEST ONLY: saved Amazon pages served by npm run store:shopify.
+      'localhost:5176',
+    ],
+    pages: [
+      {
+        // The final page, with "Place your order". Built from a saved page at
+        // /checkout/p/p-<purchase id>/spc.
+        name: 'checkout',
+        pattern: /\/checkout\/p\/p-[\d-]+\/spc/,
+        // The page has several copies of the button (top, bottom, and disabled
+        // versions shown while the page updates). Match them all.
+        placeOrderSelectors: ['input[name="placeYourOrder1"]'],
+        expressPaySelectors: [],
+        // Every row of the cost summary has this amount marker. Subtotal rows
+        // also have a hidden "subtotalLineType" field; the Order total row
+        // doesn't, so it's the first amount in a row without one.
+        totalSelector:
+          '#subtotals-marketplace-table li:not(:has(input[name="subtotalLineType"])) [data-shimmer-target="ordertotals-amount"]',
+        itemSelectors: {
+          item: '.lineitem-container',
+          name: '.lineitem-title-text',
+          price: '.a-price .a-offscreen',
+        },
+        warnIfNoBuyButton: true,
+      },
+    ],
+  },
 ]
 
 // Returns the supported store for a URL, or undefined if the store isn't supported.

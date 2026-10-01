@@ -15,6 +15,8 @@ const site = findSite(new URL(location.href))
 let enabled = true
 
 const MARK_ATTR = 'data-optout-protected'
+// Set on the element that gets the green outline (see visualBox).
+const OUTLINE_ATTR = 'data-optout-outline'
 const LABEL_CLASS = 'optout-label'
 
 // Joins selectors into one CSS selector list. An empty list matches nothing:
@@ -82,10 +84,52 @@ function block(event: Event, how: string) {
   }
 }
 
+// Where the label goes and what gets the outline. Usually both are the button
+// itself, but some stores (Amazon) draw the button with <span> wrappers and
+// lay an invisible <input> on top:
+// - The label goes before the outermost wrapper span that holds only this
+//   one control. Inside the wrappers, it would cover the button's text.
+// - The outline goes on the outermost wrapper that is a real box (not
+//   display: inline). Outlines on inline elements draw odd extra boxes.
+function visualBox(button: Element): { labelAnchor: Element; outlineTarget: Element } {
+  let labelAnchor = button
+  let outlineTarget = button
+  while (
+    labelAnchor.parentElement?.tagName === 'SPAN' &&
+    labelAnchor.parentElement.querySelectorAll('input, button, a').length === 1
+  ) {
+    labelAnchor = labelAnchor.parentElement
+    if (getComputedStyle(labelAnchor).display !== 'inline') outlineTarget = labelAnchor
+  }
+  return { labelAnchor, outlineTarget }
+}
+
+// Each label and the element it labels. Stores often keep hidden copies of
+// the buy button (Amazon has six, four hidden), so a label must hide when its
+// button is hidden, or stray labels show up around the page.
+const labels = new Map<HTMLElement, Element>()
+let syncingLabels = false
+
+function syncLabels() {
+  for (const [label, box] of labels) {
+    if (!label.isConnected || !box.isConnected) {
+      label.remove()
+      labels.delete(label)
+      continue
+    }
+    const rect = box.getBoundingClientRect()
+    label.style.display = rect.width > 0 && rect.height > 0 ? 'block' : 'none'
+  }
+  if (labels.size > 0) setTimeout(syncLabels, 250)
+  else syncingLabels = false
+}
+
 function markButtons(page: PageType) {
   for (const button of document.querySelectorAll(selectorList(page.placeOrderSelectors))) {
     if (button.hasAttribute(MARK_ATTR)) continue
     button.setAttribute(MARK_ATTR, '')
+    const { labelAnchor, outlineTarget } = visualBox(button)
+    outlineTarget.setAttribute(OUTLINE_ATTR, '')
 
     const label = document.createElement('span')
     label.className = LABEL_CLASS
@@ -97,14 +141,23 @@ function markButtons(page: PageType) {
       font: 600 13px system-ui, sans-serif;
       color: #1f9d55;
     `
-    button.before(label)
+    labelAnchor.before(label)
+    labels.set(label, outlineTarget)
+  }
+  if (labels.size > 0 && !syncingLabels) {
+    syncingLabels = true
+    syncLabels()
   }
 }
 
 function unmarkButtons() {
   for (const label of document.querySelectorAll(`.${LABEL_CLASS}`)) label.remove()
+  labels.clear()
   for (const button of document.querySelectorAll(`[${MARK_ATTR}]`)) {
     button.removeAttribute(MARK_ATTR)
+  }
+  for (const box of document.querySelectorAll(`[${OUTLINE_ATTR}]`)) {
+    box.removeAttribute(OUTLINE_ATTR)
   }
 }
 
@@ -299,7 +352,7 @@ if (site) {
 
   // The green outline lives in a stylesheet so it beats the store's own styles.
   const style = document.createElement('style')
-  style.textContent = `[${MARK_ATTR}] { outline: 3px solid #1f9d55 !important; outline-offset: 2px !important; }`
+  style.textContent = `[${OUTLINE_ATTR}] { outline: 3px solid #1f9d55 !important; outline-offset: 2px !important; }`
   document.documentElement.append(style)
 
   getEnabled().then((value) => {

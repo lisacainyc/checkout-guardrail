@@ -169,7 +169,7 @@ Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) an
 
   Done when: the Gymshark and Amazon pages load on localhost with no requests to other websites, and the Shopify tests still pass.
 
-- [ ] **Chunk 15d: Amazon checkout**
+- [x] **Chunk 15d: Amazon checkout**
 
   > Add Amazon's checkout page ("Place your order") using the saved checkout page.
 
@@ -210,6 +210,12 @@ The default cart behavior from the 20-minute list ("keep the cart") needs no wor
   Done when: setting the timer to 1 minute for testing makes the notification appear. Then set it back to 15.
 
   Skipped for now. Until it exists, the gray OFF badge and the popup's "OptOut is off" status are the only reminders.
+
+- [ ] **Remove test-only addresses before publishing**
+
+  > Remove the test-only entries from `sites.ts` (the Test Store on localhost:5174 and Amazon's localhost:5176). The welcome page's store list updates on its own, since it comes from `sites.ts`.
+
+  Only needed if OptOut is ever shared with other people. They do nothing outside your own computer.
 
 ---
 
