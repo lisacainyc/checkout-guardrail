@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>REAL ORDER PLACED - Test Store</title>
+    <link rel="stylesheet" href="store.css" />
+  </head>
+  <body class="alarm">
+    <main>
+      <h1>REAL ORDER PLACED</h1>
+      <p>Button used: <strong id="via"></strong></p>
+      <p>If Guardrail was on, it failed to block this order.</p>
+      <a class="button" href="checkout.html">Back to checkout</a>
+    </main>
+    <script>
+      document.getElementById('via').textContent =
+        new URLSearchParams(location.search).get('via') ?? 'unknown'
+    </script>
+  </body>
+</html>
