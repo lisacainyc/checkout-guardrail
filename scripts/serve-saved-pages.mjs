@@ -1,14 +1,18 @@
-// Serves the checkout pages saved in saved-pages/ on http://localhost:5176,
-// at Shopify-like paths, so OptOut can be tested without a real store.
+// Serves the pages saved in saved-pages/ on http://localhost:5176, each at the
+// path it was saved from (e.g. /checkouts/cn/... or /gp/product/...), so
+// OptOut's URL patterns match and it can be tested without a real store.
 //
 // Safety: saved pages contain real checkout session tokens. Every page is
 // cleaned before serving so it can't contact the real store:
-// - all <script> tags are removed (no Shopify code runs)
+// - all <script> tags are removed (no store code runs)
 // - links to other websites are rewritten to the local alarm page
-// - images, fonts and preload links pointing to other websites are removed
+// - images, fonts and preload links pointing to other websites are removed,
+//   in pages and in saved stylesheets
 // - iframe sandboxes are removed so the local alarm script can work
-// A small local script then sends any buy click that gets through to
-// /order-placed.html, which shows REAL ORDER PLACED, like the test store.
+// A small local script then sends any buy click or form submit that gets
+// through to /order-placed.html, which shows REAL ORDER PLACED and the
+// button used, like the test store. (Non-buy buttons like Add to Cart land
+// there too; check the button name.)
 import { createServer } from 'node:http'
 import { readFile, readdir } from 'node:fs/promises'
 import { join, extname } from 'node:path'
@@ -31,7 +35,10 @@ const TYPES = {
 // Runs in served pages and wallet iframes when OptOut lets a click through.
 const ALARM_SCRIPT = `<script>
   const alarm = (via) => { window.top.location.href = '/order-placed.html?via=' + via }
-  document.addEventListener('submit', (e) => { e.preventDefault(); alarm('pay-now') })
+  document.addEventListener('submit', (e) => {
+    e.preventDefault()
+    alarm(e.submitter?.id || e.submitter?.getAttribute('name') || 'form-submit')
+  })
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a')
     if (link && link.id === 'shop-pay-button') { e.preventDefault(); alarm('shop-pay') }
@@ -50,6 +57,10 @@ const ALARM_PAGE = `<!doctype html><html><head><meta charset="utf-8"><title>REAL
 <script>document.getElementById('via').textContent = new URLSearchParams(location.search).get('via') ?? 'unknown'</script>
 </body></html>`
 
+// CSS url(...) pointing to another website, including quotes written as
+// &quot; or &#39; inside HTML style attributes.
+const REMOTE_CSS_URL = /url\((?:['"]|&quot;|&#39;)?https?:\/\/[^)]*\)/gi
+
 function clean(html) {
   return html
     .replace(/<script\b[\s\S]*?<\/script>/gi, '')
@@ -59,21 +70,22 @@ function clean(html) {
     .replace(/<a\b([^>]*?)href="https?:\/\/[^"]*"/gi, '<a$1href="/order-placed.html?via=link"')
     .replace(/\s(src|href|action)="https?:\/\/[^"]*"/gi, ' $1="#removed"')
     .replace(/\ssrcset="[^"]*https?:\/\/[^"]*"/gi, '')
-    .replace(/url\((['"]?)https?:\/\/[^)]*\)/gi, 'url(#removed)')
+    .replace(REMOTE_CSS_URL, 'url(#removed)')
     .replace(/<\/body>/i, `${ALARM_SCRIPT}</body>`)
 }
 
-// Chooses a Shopify-like path for each saved page, based on where it was saved from.
+// Serves each saved page at the path it was saved from. Chrome records the
+// original address in a "saved from url" comment at the top of the file.
 async function routes() {
   const map = new Map()
   for (const file of await readdir(DIR)) {
     if (extname(file) !== '.html') continue
     const html = await readFile(join(DIR, file), 'utf8')
-    const savedFrom = html.match(/saved from url=\(\d+\)(\S+)/)?.[1] ?? ''
-    const slug = file.replace(/\.html$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '')
-    const path = savedFrom.includes('shop.app/checkout/')
-      ? `/checkout/1/cn/test${slug}/en-us/shoppay`
-      : `/checkouts/cn/test${slug}`
+    const savedFrom = html.match(/saved from url=\(\d+\)(\S+)/)?.[1]
+    const slug = file.replace(/\.html$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    let path = savedFrom ? new URL(savedFrom).pathname : `/saved/${slug}`
+    // Two pages saved from the same path: keep both reachable.
+    if (map.has(path)) path = `${path}${path.endsWith('/') ? '' : '/'}${slug}`
     map.set(path, file)
   }
   return map
@@ -109,6 +121,10 @@ const server = createServer(async (req, res) => {
       }
       let body = await readFile(join(DIR, asset))
       if (extname(asset) === '.html') body = clean(body.toString('utf8'))
+      // Saved stylesheets can load fonts and images from other websites too.
+      if (extname(asset) === '.css') {
+        body = body.toString('utf8').replace(REMOTE_CSS_URL, 'url(#removed)')
+      }
       res.writeHead(200, { 'content-type': type })
       return res.end(body)
     }

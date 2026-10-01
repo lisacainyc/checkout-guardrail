@@ -163,7 +163,7 @@ Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) an
 
   Done when: the test store and Shopify behave exactly as before.
 
-- [ ] **Chunk 15c: Serve saved pages at their original paths**
+- [x] **Chunk 15c: Serve saved pages at their original paths**
 
   > Change the saved-page test server to serve each page at the path it was saved from, still cleaned so it can't reach the real store.
 
