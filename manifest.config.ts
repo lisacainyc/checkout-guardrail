@@ -7,8 +7,20 @@ export default defineManifest({
   version: pkg.version,
   description: 'Shop like normal. Skip the bill.',
   permissions: ['storage', 'activeTab'],
+  // The green (on) shield. The background script swaps the toolbar icon to
+  // the red one while OptOut is off.
+  icons: {
+    16: 'icons/on-16.png',
+    32: 'icons/on-32.png',
+    48: 'icons/on-48.png',
+    128: 'icons/on-128.png',
+  },
   action: {
     default_popup: 'index.html',
+    default_icon: {
+      16: 'icons/on-16.png',
+      32: 'icons/on-32.png',
+    },
   },
   background: {
     service_worker: 'src/background.ts',
