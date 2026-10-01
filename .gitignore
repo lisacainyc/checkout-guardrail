@@ -25,3 +25,6 @@ dist-ssr
 
 # Saved store pages contain personal info (name, address)
 saved-pages/
+
+# Personal build plan, kept local only
+PLAN.md
