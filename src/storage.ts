@@ -1,6 +1,6 @@
 // Shared helpers for reading and writing extension state in chrome.storage.local.
 
-const ENABLED_KEY = 'enabled'
+export const ENABLED_KEY = 'enabled'
 
 export async function getEnabled(): Promise<boolean> {
   const result = await chrome.storage.local.get<{ [ENABLED_KEY]?: boolean }>(ENABLED_KEY)

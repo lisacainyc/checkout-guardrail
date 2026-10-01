@@ -10,4 +10,8 @@ export default defineManifest({
   action: {
     default_popup: 'index.html',
   },
+  background: {
+    service_worker: 'src/background.ts',
+    type: 'module',
+  },
 })
