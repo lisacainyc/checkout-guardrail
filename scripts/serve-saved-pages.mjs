@@ -48,7 +48,12 @@ const ALARM_SCRIPT = `<script>
     document.addEventListener('click', () => alarm(window.name || 'wallet-iframe'))
   }
 </script>
-<style>html, body { min-height: 100%; }</style>`
+<style>
+  html, body { min-height: 100%; }
+  /* Amazon's dimming layer over the page. Amazon's scripts hide it; with
+     scripts removed it stays on top and swallows every click. */
+  #nav-cover { display: none !important; }
+</style>`
 
 const ALARM_PAGE = `<!doctype html><html><head><meta charset="utf-8"><title>REAL ORDER PLACED</title></head>
 <body style="margin:0;font-family:system-ui;background:#c0392b;color:white;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center">
