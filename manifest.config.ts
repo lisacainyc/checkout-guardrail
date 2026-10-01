@@ -1,6 +1,5 @@
 import { defineManifest } from '@crxjs/vite-plugin'
 import pkg from './package.json' with { type: 'json' }
-import { sites } from './src/sites.ts'
 
 export default defineManifest({
   manifest_version: 3,
@@ -17,15 +16,14 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      // Run on every page of every supported store. Chrome match patterns
-      // can't include ports, so drop the port here; findSite() still checks it.
-      matches: sites.flatMap((site) =>
-        (site.hosts ?? []).map((host) => `*://${host.split(':')[0]}/*`),
-      ),
+      // Runs on every website. Shopify-style stores can be on any address, so
+      // protection can't be limited to a list of hosts. It does nothing on
+      // sites that aren't in sites.ts.
+      matches: ['http://*/*', 'https://*/*'],
       js: ['src/content.ts'],
     },
     {
-      // Run on every website to warn about checkouts OptOut can't protect.
+      // Runs on every website to warn about checkouts OptOut can't protect.
       matches: ['http://*/*', 'https://*/*'],
       js: ['src/warning.ts'],
     },

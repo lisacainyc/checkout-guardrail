@@ -86,6 +86,8 @@ function scheduleUpdate() {
   }, 1000)
 }
 
+// Same check as content.ts: if content.ts protects this page, stay out of the way,
+// so a page never shows both the red banner and Protected labels.
 if (!findSite(new URL(location.href))) {
   getEnabled().then((value) => {
     enabled = value

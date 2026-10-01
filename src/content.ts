@@ -1,10 +1,12 @@
-// Content script: runs inside supported store pages and blocks real orders
-// while OptOut is on.
+// Content script: runs on every website. On supported stores it blocks real
+// orders while OptOut is on. Everywhere else it does nothing.
 import { ENABLED_KEY, getEnabled, recordFakeOrder } from './storage.ts'
 import { findSite } from './sites.ts'
 import { readOrder } from './order.ts'
 import { showConfirmation } from './confirmation.ts'
 
+// warning.ts uses this same check to decide where NOT to show its red banner,
+// so a page never gets both the banner and Protected labels.
 const site = findSite(new URL(location.href))
 
 // Start blocked until the saved state loads. If anything is uncertain,
@@ -50,40 +52,6 @@ function block(event: Event, how: string) {
     })
   }
 }
-
-// Listen on window in the capture phase, so these run before any of the
-// store's own handlers.
-window.addEventListener(
-  'click',
-  (event) => {
-    if (isActive() && placeOrderButtonFor(event.target)) block(event, 'click')
-  },
-  true,
-)
-
-window.addEventListener(
-  'submit',
-  (event) => {
-    if (isActive() && event.target instanceof HTMLFormElement && isOrderForm(event.target)) {
-      block(event, 'form submit')
-    }
-  },
-  true,
-)
-
-window.addEventListener(
-  'keydown',
-  (event) => {
-    if (!isActive() || event.key !== 'Enter') return
-    const target = event.target
-    // Enter on the button itself, or Enter inside a text field of the order form.
-    const onButton = placeOrderButtonFor(target)
-    const inOrderForm =
-      target instanceof HTMLInputElement && !!target.form && isOrderForm(target.form)
-    if (onButton || inOrderForm) block(event, 'Enter key')
-  },
-  true,
-)
 
 function markButtons() {
   if (!site) return
@@ -212,6 +180,40 @@ function refreshMarks() {
 }
 
 if (site) {
+  // Listen on window in the capture phase, so these run before any of the
+  // store's own handlers.
+  window.addEventListener(
+    'click',
+    (event) => {
+      if (isActive() && placeOrderButtonFor(event.target)) block(event, 'click')
+    },
+    true,
+  )
+
+  window.addEventListener(
+    'submit',
+    (event) => {
+      if (isActive() && event.target instanceof HTMLFormElement && isOrderForm(event.target)) {
+        block(event, 'form submit')
+      }
+    },
+    true,
+  )
+
+  window.addEventListener(
+    'keydown',
+    (event) => {
+      if (!isActive() || event.key !== 'Enter') return
+      const target = event.target
+      // Enter on the button itself, or Enter inside a text field of the order form.
+      const onButton = placeOrderButtonFor(target)
+      const inOrderForm =
+        target instanceof HTMLInputElement && !!target.form && isOrderForm(target.form)
+      if (onButton || inOrderForm) block(event, 'Enter key')
+    },
+    true,
+  )
+
   // The green outline lives in a stylesheet so it beats the store's own styles.
   const style = document.createElement('style')
   style.textContent = `[${MARK_ATTR}] { outline: 3px solid #1f9d55 !important; outline-offset: 2px !important; }`
