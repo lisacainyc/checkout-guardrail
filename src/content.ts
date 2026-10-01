@@ -100,9 +100,103 @@ function unmarkButtons() {
   }
 }
 
+// Express-pay buttons (PayPal, Apple Pay, Shop Pay...) often live inside
+// iframes from another website, which this script can't reach into. So:
+// 1. Make each one `inert`: the browser ignores clicks and keyboard focus
+//    on it, including everything inside its iframe.
+// 2. Place a cover on top of it. The cover shows the Protected label and
+//    catches clicks, so later chunks can show the fake confirmation.
+
+// Covers live in a Shadow DOM, a sealed-off area the store's CSS can't style.
+const coverHost = document.createElement('div')
+coverHost.style.cssText =
+  'all: initial; position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;'
+const coverRoot = coverHost.attachShadow({ mode: 'closed' })
+coverRoot.innerHTML = `
+  <style>
+    .cover {
+      position: absolute;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #1f9d55;
+      border-radius: 6px;
+      background: rgba(240, 250, 244, 0.93);
+      font: 600 12px system-ui, sans-serif;
+      color: #1f9d55;
+      white-space: nowrap;
+      overflow: hidden;
+      cursor: not-allowed;
+      pointer-events: auto;
+    }
+  </style>
+`
+
+// Each covered express-pay element and its cover.
+const covers = new Map<Element, HTMLElement>()
+let positioning = false
+
+function markExpressPay() {
+  if (!site) return
+  for (const element of document.querySelectorAll(site.expressPaySelectors.join(','))) {
+    if (covers.has(element)) continue
+    element.setAttribute('inert', '')
+
+    const cover = document.createElement('div')
+    cover.className = 'cover'
+    cover.textContent = '🛡 Protected'
+    cover.addEventListener('click', (event) => block(event, 'express pay'))
+    coverRoot.append(cover)
+    covers.set(element, cover)
+  }
+
+  if (covers.size > 0 && !coverHost.isConnected) document.documentElement.append(coverHost)
+  if (!positioning) {
+    positioning = true
+    requestAnimationFrame(positionCovers)
+  }
+}
+
+function unmarkExpressPay() {
+  for (const [element, cover] of covers) {
+    element.removeAttribute('inert')
+    cover.remove()
+  }
+  covers.clear()
+}
+
+// Keep each cover exactly on top of its element, every animation frame,
+// so covers follow scrolling, resizing, and layout changes.
+function positionCovers() {
+  for (const [element, cover] of covers) {
+    if (!element.isConnected) {
+      cover.remove()
+      covers.delete(element)
+      continue
+    }
+    const rect = element.getBoundingClientRect()
+    const visible = rect.width > 0 && rect.height > 0
+    cover.style.display = visible ? 'flex' : 'none'
+    // Extend 2px past each edge so the green border frames the button.
+    cover.style.left = `${rect.left - 2}px`
+    cover.style.top = `${rect.top - 2}px`
+    cover.style.width = `${rect.width + 4}px`
+    cover.style.height = `${rect.height + 4}px`
+  }
+
+  if (covers.size > 0) requestAnimationFrame(positionCovers)
+  else positioning = false
+}
+
 function refreshMarks() {
-  if (isActive()) markButtons()
-  else unmarkButtons()
+  if (isActive()) {
+    markButtons()
+    markExpressPay()
+  } else {
+    unmarkButtons()
+    unmarkExpressPay()
+  }
 }
 
 if (site) {
