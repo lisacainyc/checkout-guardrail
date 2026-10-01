@@ -20,7 +20,7 @@ export default defineManifest({
       // Run on every page of every supported store. Chrome match patterns
       // can't include ports, so drop the port here; findSite() still checks it.
       matches: sites.flatMap((site) =>
-        site.hosts.map((host) => `*://${host.split(':')[0]}/*`),
+        (site.hosts ?? []).map((host) => `*://${host.split(':')[0]}/*`),
       ),
       js: ['src/content.ts'],
     },

@@ -4,8 +4,12 @@
 export interface SiteConfig {
   // Shown to the user, e.g. "Test Store".
   name: string
+  // A store matches a page if EITHER of these matches. Give at least one.
   // Hostnames the store runs on, including the port if any, e.g. "www.target.com".
-  hosts: string[]
+  hosts?: string[]
+  // Patterns for the full URL, checked on any host. For platforms like Shopify,
+  // where every store has its own address but the URL paths look the same.
+  urlPatterns?: RegExp[]
   // Matches the full URL of checkout pages only.
   checkoutPattern: RegExp
   // Buttons that place the order.
@@ -40,5 +44,9 @@ export const sites: SiteConfig[] = [
 
 // Returns the supported store for a URL, or undefined if the store isn't supported.
 export function findSite(url: URL): SiteConfig | undefined {
-  return sites.find((site) => site.hosts.includes(url.host))
+  return sites.find(
+    (site) =>
+      site.hosts?.includes(url.host) ||
+      site.urlPatterns?.some((pattern) => pattern.test(url.href)),
+  )
 }
