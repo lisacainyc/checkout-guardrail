@@ -17,6 +17,7 @@
   <img src="https://img.shields.io/badge/server-none-1f9d55" alt="No server">
   <img src="https://img.shields.io/badge/tracking-none-1f9d55" alt="No tracking">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f9d55" alt="MIT license"></a>
+  <a href="#-how-this-was-built"><img src="https://img.shields.io/badge/built%20with-Claude%20Code-d97757" alt="Built with Claude Code (AI-assisted)"></a>
 </p>
 
 <p align="center">
@@ -28,6 +29,7 @@
   <a href="#-privacy">Privacy</a> ·
   <a href="#-limitations">Limitations</a> ·
   <a href="#-development">Development</a> ·
+  <a href="#-how-this-was-built">How this was built</a> ·
   <a href="#-license">License</a>
 </p>
 
@@ -164,6 +166,12 @@ Built with React, TypeScript and Vite, using [CRXJS](https://crxjs.dev/vite-plug
 | `src/background.ts` | Keeps the toolbar icon and badge in sync with the switch. |
 | `src/App.tsx` | The popup. |
 | `welcome.html` | The page shown on first install. |
+
+## 🤖 How this was built
+
+OptOut was built by a beginner with [Claude Code](https://claude.com/claude-code): it's AI-assisted, or "vibe-coded". Claude wrote most of the code. I directed the features, made the design decisions, and tested every step by hand, including on live Amazon and Shopify checkouts. Each change was also tested in an automated browser before it was committed. Commits written with Claude list it as a co-author.
+
+If you find a bug, especially one where a buy button isn't blocked, please [open an issue](https://github.com/lisacainyc/checkout-guardrail/issues).
 
 ## 📄 License
 
