@@ -43,7 +43,7 @@ It works on **Amazon** and on stores that use **Shopify** checkout. Everything h
 
 | 1. Buy buttons are labeled | 2. Clicking one "places" the order | 3. The savings add up |
 |---|---|---|
-| <img src="docs/screenshots/test-store-protected.png" width="260" alt="A checkout page with Protected labels on the PayPal, Apple Pay and Place order buttons"> | <img src="docs/screenshots/confirmation.png" width="260" alt="OptOut's Order confirmed screen: two items, a total of $99.98, and 'You kept $99.98'"> | <img src="docs/screenshots/popup-protected.png" width="260" alt="Popup: OptOut on, 'Protected store: Test Store', 'You've kept $199.96, 2 fake orders'"> |
+| <img src="docs/screenshots/test-store-protected.png" width="260" alt="A checkout page with Protected labels on the PayPal, Apple Pay and Place order buttons"> | <img src="docs/screenshots/confirmation.png" width="260" alt="OptOut's Order confirmed screen: two items, a total of $99.98, and 'You kept $99.98'"> | <img src="docs/screenshots/popup-protected.png" width="260" alt="Popup: OptOut on, the current store is protected, 'You've kept $199.96, 2 fake orders'"> |
 
 On real stores:
 
@@ -99,7 +99,7 @@ That's it. OptOut starts out **on**.
 
 | Switched off | Resetting the total |
 |---|---|
-| <img src="docs/screenshots/popup-off.png" width="260" alt="Popup: OptOut off, 'Supported store: Test Store. OptOut is off.'"> | <img src="docs/screenshots/popup-reset.png" width="260" alt="Popup asking 'Reset to $0.00? This clears 2 fake orders.'"> |
+| <img src="docs/screenshots/popup-off.png" width="260" alt="Popup: OptOut off, the current store is supported but OptOut is off"> | <img src="docs/screenshots/popup-reset.png" width="260" alt="Popup asking 'Reset to $0.00? This clears 2 fake orders.'"> |
 
 ## 🏪 Where it works
 
@@ -150,9 +150,6 @@ Built with React, TypeScript and Vite, using [CRXJS](https://crxjs.dev/vite-plug
 | Command | What it does |
 |---|---|
 | `npm run build` | Builds the extension into `dist/`. After rebuilding, reload OptOut in `chrome://extensions` and refresh open store tabs. |
-| `npm run store` | Serves a fake test store at `http://localhost:5174/checkout.html` (supported) |
-| `npm run store:unsupported` | Serves the same store on port 5175 (unsupported, shows the warning banner) |
-| `npm run store:shopify` | Serves store pages you've saved in `saved-pages/` on port 5176, at their original paths |
 
 | Path | What's in it |
 |---|---|
@@ -165,17 +162,3 @@ Built with React, TypeScript and Vite, using [CRXJS](https://crxjs.dev/vite-plug
 | `src/background.ts` | Keeps the toolbar icon and badge in sync with the switch. |
 | `src/App.tsx` | The popup. |
 | `welcome.html` | The page shown on first install. |
-| `test-store/` | A fake shop for safe testing. Any order that gets through shows **REAL ORDER PLACED**. |
-| `scripts/serve-saved-pages.mjs` | Test server for saved store pages. |
-
-### Testing safely on real store pages
-
-Never test a change on a live checkout first:
-
-1. Turn OptOut off, go to the store's page, and stop before clicking any buy button.
-2. Save the page (`Cmd+S` / `Ctrl+S`, "Webpage, Complete") into a `saved-pages/` folder. This folder is in `.gitignore`, because saved pages contain your name, address and checkout session.
-3. Run `npm run store:shopify` and open `http://localhost:5176/`.
-
-The test server removes the store's scripts and every link to other websites before serving a page, so a saved page can't reach the real store. Any order that gets through lands on a local **REAL ORDER PLACED** page.
-
-The `sites.ts` entries for the test store (`localhost:5174`) and for saved Amazon pages (`localhost:5176`) only have an effect on your own computer.
