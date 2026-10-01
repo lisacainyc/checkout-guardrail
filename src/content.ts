@@ -89,9 +89,12 @@ function unmarkButtons() {
 //    catches clicks, so later chunks can show the fake confirmation.
 
 // Covers live in a Shadow DOM, a sealed-off area the store's CSS can't style.
+// The host is positioned on the page itself, not fixed to the window, so the
+// browser scrolls covers together with the buttons. With a fixed position,
+// covers trailed behind the buttons for a moment on every scroll.
 const coverHost = document.createElement('div')
 coverHost.style.cssText =
-  'all: initial; position: fixed; inset: 0; pointer-events: none; z-index: 2147483647;'
+  'all: initial; position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none; z-index: 2147483647;'
 const coverRoot = coverHost.attachShadow({ mode: 'closed' })
 coverRoot.innerHTML = `
   <style>
@@ -148,7 +151,7 @@ function unmarkExpressPay() {
 }
 
 // Keep each cover exactly on top of its element, every animation frame,
-// so covers follow scrolling, resizing, and layout changes.
+// so covers follow resizing, layout changes, and scrolling inside boxes.
 function positionCovers() {
   for (const [element, cover] of covers) {
     if (!element.isConnected) {
@@ -159,9 +162,10 @@ function positionCovers() {
     const rect = element.getBoundingClientRect()
     const visible = rect.width > 0 && rect.height > 0
     cover.style.display = visible ? 'flex' : 'none'
-    // Extend 2px past each edge so the green border frames the button.
-    cover.style.left = `${rect.left - 2}px`
-    cover.style.top = `${rect.top - 2}px`
+    // Page coordinates (window position + scroll), since the host scrolls with
+    // the page. Extend 2px past each edge so the green border frames the button.
+    cover.style.left = `${rect.left + window.scrollX - 2}px`
+    cover.style.top = `${rect.top + window.scrollY - 2}px`
     cover.style.width = `${rect.width + 4}px`
     cover.style.height = `${rect.height + 4}px`
   }
