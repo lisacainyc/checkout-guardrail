@@ -28,3 +28,8 @@ saved-pages/
 
 # Personal build plan, kept local only
 PLAN.md
+
+# Test-only stores, test pages and test server, kept local only
+src/test-sites.ts
+test-store/
+scripts/serve-saved-pages.mjs

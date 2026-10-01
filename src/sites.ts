@@ -27,7 +27,7 @@ export interface PageType {
 }
 
 export interface SiteConfig {
-  // Shown to the user, e.g. "Test Store".
+  // Shown to the user, e.g. "Amazon".
   name: string
   // A store matches a page if EITHER of these matches. Give at least one.
   // Hostnames the store runs on, including the port if any, e.g. "www.target.com".
@@ -39,26 +39,7 @@ export interface SiteConfig {
   pages: PageType[]
 }
 
-export const sites: SiteConfig[] = [
-  {
-    name: 'Test Store',
-    hosts: ['localhost:5174'],
-    pages: [
-      {
-        name: 'checkout',
-        pattern: /\/checkout\.html/,
-        placeOrderSelectors: ['#place-order'],
-        expressPaySelectors: ['#apple-pay', 'iframe.paypal-frame'],
-        totalSelector: '#order-total',
-        itemSelectors: {
-          item: '.item',
-          name: '.item-name',
-          price: '.item-price',
-        },
-        warnIfNoBuyButton: true,
-      },
-    ],
-  },
+const publicSites: SiteConfig[] = [
   {
     // Every Shopify store has its own checkout address (e.g.
     // us.checkout.gymshark.com), so match by URL path instead of host.
@@ -95,14 +76,8 @@ export const sites: SiteConfig[] = [
     ],
   },
   {
-    // Listed after Shopify: the saved-page test server (localhost:5176) also
-    // serves Shopify pages, which must match Shopify first.
     name: 'Amazon',
-    hosts: [
-      'www.amazon.com',
-      // TEST ONLY: saved Amazon pages served by npm run store:shopify.
-      'localhost:5176',
-    ],
+    hosts: ['www.amazon.com'],
     pages: [
       {
         // The final page, with "Place your order". Built from a saved page at
@@ -151,6 +126,20 @@ export const sites: SiteConfig[] = [
       },
     ],
   },
+]
+
+// Test-only stores (local test pages) live in test-sites.ts, which is kept out
+// of the public repo. They're included only by `npm run build:test`; a normal
+// `npm run build` never contains them, and builds fine without the file.
+type TestSitesModule = { makeTestSites: (publicSites: SiteConfig[]) => SiteConfig[] }
+const testModules: Record<string, TestSitesModule> =
+  import.meta.env.MODE === 'test'
+    ? import.meta.glob<TestSitesModule>('./test-sites.ts', { eager: true })
+    : {}
+
+export const sites: SiteConfig[] = [
+  ...publicSites,
+  ...Object.values(testModules).flatMap((module) => module.makeTestSites(publicSites)),
 ]
 
 // Returns the supported store for a URL, or undefined if the store isn't supported.
