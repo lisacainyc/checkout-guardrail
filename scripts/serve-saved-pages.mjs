@@ -9,6 +9,7 @@
 // - images, fonts and preload links pointing to other websites are removed,
 //   in pages and in saved stylesheets
 // - iframe sandboxes are removed so the local alarm script can work
+// - anything OptOut itself added before the page was saved is removed
 // A small local script then sends any buy click or form submit that gets
 // through to /order-placed.html, which shows REAL ORDER PLACED and the
 // button used, like the test store. (Non-buy buttons like Add to Cart land
@@ -61,8 +62,22 @@ const ALARM_PAGE = `<!doctype html><html><head><meta charset="utf-8"><title>REAL
 // &quot; or &#39; inside HTML style attributes.
 const REMOTE_CSS_URL = /url\((?:['"]|&quot;|&#39;)?https?:\/\/[^)]*\)/gi
 
-function clean(html) {
+// If a page was saved while OptOut was running, Chrome saves OptOut's own
+// additions too (banners, labels, outlines). Remove them, so every test starts
+// from the store's page as the store sent it.
+function removeOptOutLeftovers(html) {
   return html
+    .replace(
+      /<div\b[^>]*>\s*<template shadowrootmode="[^"]*">[\s\S]*?<\/template>\s*<\/div>/gi,
+      (block) => (block.includes('OptOut') ? '' : block),
+    )
+    .replace(/<span class="optout-label"[^>]*>[\s\S]*?<\/span>/gi, '')
+    .replace(/<style>\[data-optout-(protected|outline)\][^<]*<\/style>/gi, '')
+    .replace(/\sdata-optout-(protected|outline)=""/gi, '')
+}
+
+function clean(html) {
+  return removeOptOutLeftovers(html)
     .replace(/<script\b[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*rel="(modulepreload|preload|prefetch|dns-prefetch|preconnect)"[^>]*>/gi, '')
     .replace(/<meta\b[^>]*http-equiv="(refresh|origin-trial)"[^>]*>/gi, '')
