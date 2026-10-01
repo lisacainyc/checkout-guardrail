@@ -2,6 +2,7 @@
 // a checkout, it shows a red banner so the user knows orders here are real.
 import { ENABLED_KEY, getEnabled } from './storage.ts'
 import { findSite } from './sites.ts'
+import { createBanner } from './banner.ts'
 
 // "checkout", "cart" or "payment" as a separate word in the URL path or query,
 // so "/checkout" and "?step=payment" match but "/cartoons" doesn't.
@@ -23,50 +24,13 @@ function looksLikeCheckout(): boolean {
   return false
 }
 
-function createBanner(): HTMLElement {
-  // Shadow DOM so the site's CSS can't hide or restyle the warning.
-  const host = document.createElement('div')
-  host.style.cssText = 'all: initial; position: fixed; top: 0; left: 0; right: 0; z-index: 2147483647;'
-  const root = host.attachShadow({ mode: 'closed' })
-  root.innerHTML = `
-    <style>
-      .banner {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 16px;
-        background: #c0392b;
-        color: white;
-        font: 600 15px system-ui, sans-serif;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      }
-      .text { flex: 1; }
-      .close {
-        border: none;
-        background: transparent;
-        color: white;
-        font-size: 20px;
-        line-height: 1;
-        cursor: pointer;
-      }
-      .close:focus-visible { outline: 2px solid white; }
-    </style>
-    <div class="banner" role="alert">
-      <span class="text">🛡 OptOut can't protect this checkout. Orders here are real.</span>
-      <button class="close" aria-label="Dismiss warning">×</button>
-    </div>
-  `
-  root.querySelector('.close')!.addEventListener('click', () => {
-    dismissed = true
-    update()
-  })
-  return host
-}
-
 function update() {
   const show = enabled && !dismissed && looksLikeCheckout()
   if (show && !banner) {
-    banner = createBanner()
+    banner = createBanner("🛡 OptOut can't protect this checkout. Orders here are real.", () => {
+      dismissed = true
+      update()
+    })
     document.documentElement.append(banner)
   } else if (!show && banner) {
     banner.remove()

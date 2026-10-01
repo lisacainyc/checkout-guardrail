@@ -4,6 +4,7 @@ import { ENABLED_KEY, getEnabled, recordFakeOrder } from './storage.ts'
 import { findSite } from './sites.ts'
 import { readOrder } from './order.ts'
 import { showConfirmation } from './confirmation.ts'
+import { createBanner } from './banner.ts'
 
 // warning.ts uses this same check to decide where NOT to show its red banner,
 // so a page never gets both the banner and Protected labels.
@@ -169,6 +170,34 @@ function positionCovers() {
   else positioning = false
 }
 
+// If OptOut is on but can't find the place-order button on a supported
+// checkout, the store may have changed its page. Without a warning, the page
+// would look protected (no red banner) while orders are real.
+const MISSING_BUTTON_DELAY_MS = 3000
+const loadedAt = Date.now()
+let missingBanner: HTMLElement | null = null
+let missingDismissed = false
+
+function updateMissingButtonWarning() {
+  const buttonFound = !!site && !!document.querySelector(site.placeOrderSelectors.join(','))
+  const waitedLongEnough = Date.now() - loadedAt >= MISSING_BUTTON_DELAY_MS
+  const show = isActive() && !buttonFound && waitedLongEnough && !missingDismissed
+
+  if (show && !missingBanner) {
+    missingBanner = createBanner(
+      "🛡 OptOut couldn't find the buy buttons. Orders here may be real.",
+      () => {
+        missingDismissed = true
+        updateMissingButtonWarning()
+      },
+    )
+    document.documentElement.append(missingBanner)
+  } else if (!show && missingBanner) {
+    missingBanner.remove()
+    missingBanner = null
+  }
+}
+
 function refreshMarks() {
   if (isActive()) {
     markButtons()
@@ -177,6 +206,7 @@ function refreshMarks() {
     unmarkButtons()
     unmarkExpressPay()
   }
+  updateMissingButtonWarning()
 }
 
 if (site) {
@@ -205,11 +235,18 @@ if (site) {
     (event) => {
       if (!isActive() || event.key !== 'Enter') return
       const target = event.target
-      // Enter on the button itself, or Enter inside a text field of the order form.
-      const onButton = placeOrderButtonFor(target)
-      const inOrderForm =
-        target instanceof HTMLInputElement && !!target.form && isOrderForm(target.form)
-      if (onButton || inOrderForm) block(event, 'Enter key')
+      // Enter on the button itself counts as pressing it.
+      if (placeOrderButtonFor(target)) {
+        block(event, 'Enter key')
+        return
+      }
+      // Enter inside a text field of the order form would submit the order too.
+      // Stop it silently: people press Enter after typing an address, and a
+      // surprise "Order confirmed" screen would be confusing.
+      if (target instanceof HTMLInputElement && target.form && isOrderForm(target.form)) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      }
     },
     true,
   )
@@ -239,4 +276,7 @@ if (site) {
   })
 
   refreshMarks()
+  // Check for missing buttons once the page has had time to build itself,
+  // even if nothing on the page changes after that.
+  setTimeout(refreshMarks, MISSING_BUTTON_DELAY_MS)
 }
