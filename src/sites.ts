@@ -55,8 +55,8 @@ export const sites: SiteConfig[] = [
     checkoutPattern: /\/checkouts?\/(\d+\/)?cn?\/[A-Za-z0-9]+/,
     placeOrderSelectors: ['#checkout-pay-button'],
     // Each item in the express list: Shop Pay (a link) and PayPal, Google Pay,
-    // Venmo (iframes). Items revealed by "Show more options" are added to the
-    // same list, so they're covered too.
+    // Venmo (iframes). Any express buttons Shopify adds to this list later are
+    // covered too.
     expressPaySelectors: ['#express-checkout-wallets-wrapper > li'],
     // The Total row is the only row in the cost summary whose header is bold.
     // Its cell has two copies of the amount; the last <strong> is the plain one.

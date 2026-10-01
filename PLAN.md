@@ -118,25 +118,25 @@ Shopify checkouts don't share one address: Gymshark's is `us.checkout.gymshark.c
 
 Saved pages: `saved-pages/Checkout - Gymshark US.html` (Shop Pay, `shop.app`) and `saved-pages/Checkout - Gymshark US guest.html` (guest checkout).
 
-- [ ] **Chunk 14a: Match stores by URL pattern**
+- [x] **Chunk 14a: Match stores by URL pattern**
 
   > Change `sites.ts` so a store can match by host **or** by a URL pattern on any host. Don't add Shopify yet.
 
   Done when: the test store still works exactly as before (labels, blocking, confirmation, popup status), and 5175 still shows the red banner.
 
-- [ ] **Chunk 14b: Run protection on all sites**
+- [x] **Chunk 14b: Run protection on all sites**
 
   > Make `content.ts` run on all sites, and make the warning script skip any page `content.ts` protects, so a page never shows both the red banner and Protected labels.
 
   Done when: the test store is still protected, and 5175 still shows the banner.
 
-- [ ] **Chunk 14c: Add Shopify**
+- [x] **Chunk 14c: Add Shopify**
 
-  > Add a Shopify entry to `sites.ts` using both saved Gymshark pages. Cover Pay now and every express button (Shop Pay, PayPal, Google Pay, Venmo, and any under "Show more options"). Serve the saved pages on localhost at a Shopify-like path so we can test safely.
+  > Add a Shopify entry to `sites.ts` using both saved Gymshark pages. Cover Pay now and every express button (Shop Pay, PayPal, Google Pay, Venmo). Serve the saved pages on localhost at a Shopify-like path so we can test safely.
 
   Done when: both saved pages show Protected labels on Pay now and all express buttons, the fake confirmation shows the right items and total, and there's no red banner.
 
-- [ ] **Chunk 14d: Live Shopify check**
+- [x] **Chunk 14d: Live Shopify check**
 
   > Walk me through checking a live Shopify checkout (Gymshark) without placing an order.
 
