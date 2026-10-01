@@ -16,6 +16,7 @@
   <img src="https://img.shields.io/badge/works%20on-Amazon%20%C2%B7%20Shopify-1f9d55" alt="Works on Amazon and Shopify">
   <img src="https://img.shields.io/badge/server-none-1f9d55" alt="No server">
   <img src="https://img.shields.io/badge/tracking-none-1f9d55" alt="No tracking">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f9d55" alt="MIT license"></a>
 </p>
 
 <p align="center">
@@ -26,7 +27,8 @@
   <a href="#-where-it-works">Where it works</a> ·
   <a href="#-privacy">Privacy</a> ·
   <a href="#-limitations">Limitations</a> ·
-  <a href="#-development">Development</a>
+  <a href="#-development">Development</a> ·
+  <a href="#-license">License</a>
 </p>
 
 ---
@@ -162,3 +164,7 @@ Built with React, TypeScript and Vite, using [CRXJS](https://crxjs.dev/vite-plug
 | `src/background.ts` | Keeps the toolbar icon and badge in sync with the switch. |
 | `src/App.tsx` | The popup. |
 | `welcome.html` | The page shown on first install. |
+
+## 📄 License
+
+[MIT](LICENSE). You're free to use, change and share OptOut, as long as the license notice stays with it.
