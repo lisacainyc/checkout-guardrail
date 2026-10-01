@@ -1,7 +1,7 @@
 // Content script: runs on every website. On supported stores it blocks real
 // orders while OptOut is on. Everywhere else it does nothing.
 import { ENABLED_KEY, getEnabled, recordFakeOrder } from './storage.ts'
-import { findSite } from './sites.ts'
+import { findPage, findSite, type PageType } from './sites.ts'
 import { readOrder } from './order.ts'
 import { showConfirmation } from './confirmation.ts'
 import { createBanner } from './banner.ts'
@@ -17,25 +17,34 @@ let enabled = true
 const MARK_ATTR = 'data-optout-protected'
 const LABEL_CLASS = 'optout-label'
 
-function isCheckout(): boolean {
-  // Checked on every event, because single-page stores change the URL
-  // without reloading the page.
-  return !!site && site.checkoutPattern.test(location.href)
+// Joins selectors into one CSS selector list. An empty list matches nothing:
+// querySelector('') would throw an error instead.
+function selectorList(selectors: string[]): string {
+  return selectors.length > 0 ? selectors.join(',') : ':not(*)'
+}
+
+// The kind of buy page we're on (checkout, product page...), or undefined.
+// Checked on every event, because single-page stores change the URL
+// without reloading the page.
+function currentPage(): PageType | undefined {
+  return site ? findPage(site, new URL(location.href)) : undefined
 }
 
 function isActive(): boolean {
-  return enabled && isCheckout()
+  return enabled && !!currentPage()
 }
 
 // Returns the place-order button the event came from, if any.
 function placeOrderButtonFor(target: EventTarget | null): Element | null {
-  if (!site || !(target instanceof Element)) return null
-  return target.closest(site.placeOrderSelectors.join(','))
+  const page = currentPage()
+  if (!page || !(target instanceof Element)) return null
+  return target.closest(selectorList(page.placeOrderSelectors))
 }
 
 // True if the form contains a place-order button.
 function hasBuyButton(form: HTMLFormElement): boolean {
-  return !!site && !!form.querySelector(site.placeOrderSelectors.join(','))
+  const page = currentPage()
+  return !!page && !!form.querySelector(selectorList(page.placeOrderSelectors))
 }
 
 // Decides whether a form submit places an order. Some stores put buy and
@@ -60,8 +69,9 @@ function block(event: Event, how: string) {
   event.preventDefault()
   event.stopImmediatePropagation()
   console.log(`OptOut: blocked order (${how}) on ${site?.name}`)
-  if (!site) return
-  const order = readOrder(site)
+  const page = currentPage()
+  if (!site || !page) return
+  const order = readOrder(page)
   if (showConfirmation(order, site.name)) {
     recordFakeOrder({
       store: site.name,
@@ -72,9 +82,8 @@ function block(event: Event, how: string) {
   }
 }
 
-function markButtons() {
-  if (!site) return
-  for (const button of document.querySelectorAll(site.placeOrderSelectors.join(','))) {
+function markButtons(page: PageType) {
+  for (const button of document.querySelectorAll(selectorList(page.placeOrderSelectors))) {
     if (button.hasAttribute(MARK_ATTR)) continue
     button.setAttribute(MARK_ATTR, '')
 
@@ -139,9 +148,8 @@ coverRoot.innerHTML = `
 const covers = new Map<Element, HTMLElement>()
 let positioning = false
 
-function markExpressPay() {
-  if (!site) return
-  for (const element of document.querySelectorAll(site.expressPaySelectors.join(','))) {
+function markExpressPay(page: PageType) {
+  for (const element of document.querySelectorAll(selectorList(page.expressPaySelectors))) {
     if (covers.has(element)) continue
     element.setAttribute('inert', '')
 
@@ -201,9 +209,11 @@ let missingBanner: HTMLElement | null = null
 let missingDismissed = false
 
 function updateMissingButtonWarning() {
-  const buttonFound = !!site && !!document.querySelector(site.placeOrderSelectors.join(','))
+  const page = currentPage()
+  const buttonFound = !!page && !!document.querySelector(selectorList(page.placeOrderSelectors))
   const waitedLongEnough = Date.now() - loadedAt >= MISSING_BUTTON_DELAY_MS
-  const show = isActive() && !buttonFound && waitedLongEnough && !missingDismissed
+  const show =
+    enabled && !!page?.warnIfNoBuyButton && !buttonFound && waitedLongEnough && !missingDismissed
 
   if (show && !missingBanner) {
     missingBanner = createBanner(
@@ -220,13 +230,21 @@ function updateMissingButtonWarning() {
   }
 }
 
+// The page type the current marks were made for.
+let markedPage: PageType | undefined
+
 function refreshMarks() {
-  if (isActive()) {
-    markButtons()
-    markExpressPay()
-  } else {
+  const page = enabled ? currentPage() : undefined
+  // A single-page store moved to a different kind of page: clear the old
+  // marks first, since the new page type protects different buttons.
+  if (page !== markedPage) {
     unmarkButtons()
     unmarkExpressPay()
+    markedPage = page
+  }
+  if (page) {
+    markButtons(page)
+    markExpressPay(page)
   }
   updateMissingButtonWarning()
 }

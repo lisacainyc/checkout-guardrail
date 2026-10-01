@@ -157,7 +157,7 @@ Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) an
 
   Done when: the test store and Shopify are still fully blocked, and a non-buy submit button in the same form as a buy button (add one to the test store) goes through.
 
-- [ ] **Chunk 15b: Page types per store**
+- [x] **Chunk 15b: Page types per store**
 
   > Let a store have several page types (e.g. checkout and product page), each with its own URL pattern, buy-button and express selectors, item/total selectors, and whether the missing-button warning applies.
 

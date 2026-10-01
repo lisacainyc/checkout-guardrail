@@ -1,7 +1,7 @@
 // Reads the order (items and total) from a checkout page.
 // Only reads the visible text of the elements named in sites.ts.
 // Never reads form fields, so payment details are never touched.
-import type { SiteConfig } from './sites.ts'
+import type { PageType } from './sites.ts'
 
 export interface OrderItem {
   name: string
@@ -32,8 +32,8 @@ export function parsePrice(text: string): number | null {
   return match ? Number(match[0]) : null
 }
 
-export function readOrder(site: SiteConfig): Order {
-  const { item, name, price } = site.itemSelectors
+export function readOrder(page: PageType): Order {
+  const { item, name, price } = page.itemSelectors
   const items = [...document.querySelectorAll(item)]
     .map((element) => ({
       name: readText(element.querySelector(name)),
@@ -41,6 +41,6 @@ export function readOrder(site: SiteConfig): Order {
     }))
     .filter((orderItem) => orderItem.name)
 
-  const totalText = readText(document.querySelector(site.totalSelector))
+  const totalText = readText(document.querySelector(page.totalSelector))
   return { items, totalText, total: parsePrice(totalText) }
 }
