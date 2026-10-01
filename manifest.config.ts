@@ -24,5 +24,10 @@ export default defineManifest({
       ),
       js: ['src/content.ts'],
     },
+    {
+      // Run on every website to warn about checkouts Guardrail can't protect.
+      matches: ['http://*/*', 'https://*/*'],
+      js: ['src/warning.ts'],
+    },
   ],
 })
