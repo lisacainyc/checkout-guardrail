@@ -175,7 +175,7 @@ Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) an
 
   Done when: on the saved page, every Place your order button is labeled and blocked, and the confirmation shows the right items and total.
 
-- [ ] **Chunk 15e: Amazon product page**
+- [x] **Chunk 15e: Amazon product page**
 
   > Add Amazon product pages: block Buy Now and Subscribe & Save, keep Add to Cart working, and show the confirmation with the product name and price. No missing-button warning on product pages.
 

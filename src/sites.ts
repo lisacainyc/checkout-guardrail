@@ -125,6 +125,30 @@ export const sites: SiteConfig[] = [
         },
         warnIfNoBuyButton: true,
       },
+      {
+        // Product pages: /dp/<ASIN> or /gp/product/<ASIN>, where an ASIN is
+        // Amazon's 10-character product ID. Built from a saved page.
+        name: 'product',
+        pattern: /\/(dp|gp\/product)\/[A-Z0-9]{10}/,
+        placeOrderSelectors: [
+          // Buy Now skips the cart and orders right away.
+          '#buy-now-button',
+          // Subscribe & Save places a first order right away, then repeats it.
+          '#rcx-subscribe-submit-button-announce',
+        ],
+        // Add to Cart shares a form with Buy Now and is deliberately NOT here.
+        expressPaySelectors: [],
+        // The one-time purchase price. For Subscribe, Amazon's discounted
+        // price may be lower, so "You kept" can be slightly high.
+        totalSelector: '#corePrice_feature_div .a-price .a-offscreen',
+        itemSelectors: {
+          item: '#dp',
+          name: '#productTitle',
+          price: '#corePrice_feature_div .a-price .a-offscreen',
+        },
+        // Many product pages have no Buy Now (out of stock, sold by others).
+        warnIfNoBuyButton: false,
+      },
     ],
   },
 ]
