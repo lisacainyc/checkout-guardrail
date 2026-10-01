@@ -6,4 +6,12 @@ import manifest from './manifest.config.ts'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), crx({ manifest })],
+  build: {
+    rollupOptions: {
+      // Pages not listed in the manifest must be added here to be built.
+      input: {
+        welcome: 'welcome.html',
+      },
+    },
+  },
 })

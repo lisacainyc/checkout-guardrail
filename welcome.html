@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to OptOut</title>
+    <link rel="stylesheet" href="/src/welcome.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">🛡 OptOut is installed</p>
+        <h1>Shop like normal. Skip the bill.</h1>
+        <p class="lead">
+          With OptOut on, you can browse, fill your cart, and click "Place order" like you
+          always do. Instead of buying, you get an order confirmation and see how much money you
+          kept. When you really want to buy something, turn OptOut off.
+        </p>
+      </header>
+
+      <section>
+        <h2>1. Pin OptOut to your toolbar</h2>
+        <ol>
+          <li>Click the puzzle-piece icon at the top right of Chrome.</li>
+          <li>Find <strong>OptOut</strong> and click the pin next to it.</li>
+        </ol>
+        <p>The OptOut icon now stays in your toolbar, so you can always see if it's on.</p>
+      </section>
+
+      <section>
+        <h2>2. Use the switch</h2>
+        <p>Click the OptOut icon to open the switch.</p>
+        <ul class="states">
+          <li>
+            <span class="badge on">ON</span>
+            <span>Orders on supported stores are stopped. Green "Protected" labels show on the buy buttons.</span>
+          </li>
+          <li>
+            <span class="badge off">OFF</span>
+            <span>Everything works normally and orders are real. Use this when you mean to buy.</span>
+          </li>
+        </ul>
+        <p>
+          OptOut starts out on. After a real purchase, remember to switch it back on. The badge
+          on the icon always shows which state it's in.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Know where it works</h2>
+        <p>OptOut can stop orders on these stores:</p>
+        <ul id="stores" class="stores"></ul>
+        <p>
+          On any other store's checkout, a red banner warns you:
+          <strong>"OptOut can't protect this checkout. Orders here are real."</strong>
+          If a buy button doesn't have a green "Protected" label, assume the order is real.
+        </p>
+      </section>
+
+      <section class="privacy">
+        <h2>Your privacy</h2>
+        <ul>
+          <li><strong>OptOut never reads payment info.</strong> It never reads what you type into a page: no card numbers, addresses, or anything else you enter in a form.</li>
+          <li><strong>Nothing leaves your browser.</strong> Your switch setting and your list of stopped orders are saved only on this computer. OptOut has no server and sends no data anywhere.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Why OptOut asks for these permissions</h2>
+        <dl class="permissions">
+          <dt>Read and change your data on all websites</dt>
+          <dd>
+            This is the warning Chrome shows at install. OptOut needs it for two jobs: stopping
+            the buy buttons on supported stores, and spotting checkout pages on other sites so it can
+            warn you. On a page, it only looks at the page address, buy buttons, item names, prices, and the order
+            total.
+          </dd>
+          <dt>Storage</dt>
+          <dd>Saves your switch setting, your stopped orders, and the total you've kept, on this computer only.</dd>
+          <dt>Active tab</dt>
+          <dd>
+            When you click the OptOut icon, it checks the address of the page you're on, to tell
+            you whether that store is protected.
+          </dd>
+        </dl>
+      </section>
+    </main>
+    <script type="module" src="/src/welcome.ts"></script>
+  </body>
+</html>

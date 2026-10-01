@@ -4,7 +4,7 @@ import { sites } from './src/sites.ts'
 
 export default defineManifest({
   manifest_version: 3,
-  name: 'Checkout Guardrail',
+  name: 'OptOut',
   version: pkg.version,
   description: 'Shop like normal. Skip the bill.',
   permissions: ['storage', 'activeTab'],
@@ -25,7 +25,7 @@ export default defineManifest({
       js: ['src/content.ts'],
     },
     {
-      // Run on every website to warn about checkouts Guardrail can't protect.
+      // Run on every website to warn about checkouts OptOut can't protect.
       matches: ['http://*/*', 'https://*/*'],
       js: ['src/warning.ts'],
     },

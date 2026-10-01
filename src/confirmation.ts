@@ -1,4 +1,4 @@
-// The fake "Order confirmed" screen shown when Guardrail blocks an order.
+// The fake "Order confirmed" screen shown when OptOut blocks an order.
 import type { Order } from './order.ts'
 
 let open = false
@@ -146,7 +146,7 @@ export function showConfirmation(order: Order, storeName: string): boolean {
 
   card.append(
     el('p', 'kept', `You kept ${kept}.`),
-    el('p', 'note', 'Guardrail stopped this order. Nothing was sent to the store and nothing was charged.'),
+    el('p', 'note', 'OptOut stopped this order. Nothing was sent to the store and nothing was charged.'),
   )
 
   const back = el('button', 'back', 'Back to store')

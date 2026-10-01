@@ -52,7 +52,7 @@ function createBanner(): HTMLElement {
       .close:focus-visible { outline: 2px solid white; }
     </style>
     <div class="banner" role="alert">
-      <span class="text">🛡 Guardrail can't protect this checkout. Orders here are real.</span>
+      <span class="text">🛡 OptOut can't protect this checkout. Orders here are real.</span>
       <button class="close" aria-label="Dismiss warning">×</button>
     </div>
   `

@@ -1,0 +1,105 @@
+body {
+  margin: 0;
+  padding: 0 16px;
+  background: #f3faf6;
+  color: #1d2a22;
+  font-family: system-ui, sans-serif;
+  line-height: 1.55;
+}
+
+main {
+  max-width: 640px;
+  margin: 40px auto 64px;
+}
+
+header {
+  margin-bottom: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #1f9d55;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.lead {
+  margin: 0;
+  font-size: 18px;
+}
+
+section {
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  background: white;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+section p:last-child,
+section ul:last-child,
+section ol:last-child {
+  margin-bottom: 0;
+}
+
+ol,
+ul {
+  padding-left: 20px;
+}
+
+.states {
+  padding: 0;
+  list-style: none;
+}
+
+.states li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  flex-shrink: 0;
+  width: 40px;
+  padding: 2px 0;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.badge.on {
+  background: #1f9d55;
+}
+
+.badge.off {
+  background: #808080;
+}
+
+.stores li {
+  font-weight: 600;
+}
+
+.privacy {
+  border: 2px solid #1f9d55;
+}
+
+.permissions dt {
+  margin-top: 12px;
+  font-weight: 700;
+}
+
+.permissions dd {
+  margin: 2px 0 0;
+}

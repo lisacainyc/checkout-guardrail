@@ -1,5 +1,5 @@
 // Content script: runs inside supported store pages and blocks real orders
-// while Guardrail is on.
+// while OptOut is on.
 import { ENABLED_KEY, getEnabled, recordFakeOrder } from './storage.ts'
 import { findSite } from './sites.ts'
 import { readOrder } from './order.ts'
@@ -11,8 +11,8 @@ const site = findSite(new URL(location.href))
 // block rather than let a real order through.
 let enabled = true
 
-const MARK_ATTR = 'data-guardrail-protected'
-const LABEL_CLASS = 'guardrail-label'
+const MARK_ATTR = 'data-optout-protected'
+const LABEL_CLASS = 'optout-label'
 
 function isCheckout(): boolean {
   // Checked on every event, because single-page stores change the URL
@@ -38,7 +38,7 @@ function isOrderForm(form: HTMLFormElement): boolean {
 function block(event: Event, how: string) {
   event.preventDefault()
   event.stopImmediatePropagation()
-  console.log(`Guardrail: blocked order (${how}) on ${site?.name}`)
+  console.log(`OptOut: blocked order (${how}) on ${site?.name}`)
   if (!site) return
   const order = readOrder(site)
   if (showConfirmation(order, site.name)) {
@@ -93,7 +93,7 @@ function markButtons() {
 
     const label = document.createElement('span')
     label.className = LABEL_CLASS
-    label.textContent = '🛡 Protected by Guardrail'
+    label.textContent = '🛡 Protected by OptOut'
     label.style.cssText = `
       all: initial;
       display: block;

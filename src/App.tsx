@@ -64,7 +64,7 @@ function App() {
   return (
     <>
       <label className="row">
-        <span className="label">Guardrail</span>
+        <span className="label">OptOut</span>
         <button
           type="button"
           role="switch"
@@ -83,7 +83,7 @@ function App() {
             ? 'Not a supported store'
             : enabled
               ? `Protected store: ${storeName}`
-              : `Supported store: ${storeName}. Guardrail is off.`}
+              : `Supported store: ${storeName}. OptOut is off.`}
         </p>
       )}
 

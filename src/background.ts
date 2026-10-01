@@ -15,3 +15,10 @@ chrome.storage.onChanged.addListener((changes, area) => {
     updateBadge((changes[ENABLED_KEY].newValue as boolean | undefined) ?? true)
   }
 })
+
+// Open the welcome page once, when OptOut is first installed (not on updates).
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') })
+  }
+})
