@@ -57,3 +57,22 @@ body {
   margin: 0;
   color: #c0392b;
 }
+
+.stats {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.kept {
+  margin: 0 0 2px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f9d55;
+}
+
+.count {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
