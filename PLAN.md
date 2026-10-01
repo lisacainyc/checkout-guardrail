@@ -181,7 +181,7 @@ Saved pages: `saved-pages/Place Your Order - Amazon Checkout.html` (checkout) an
 
   Done when: on the saved product page, Buy Now and Subscribe are labeled and blocked, and Add to Cart is not blocked.
 
-- [ ] **Chunk 15f: Live Amazon check**
+- [x] **Chunk 15f: Live Amazon check**
 
   > Walk me through checking live Amazon pages without placing an order.
 
