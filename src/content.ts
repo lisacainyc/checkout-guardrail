@@ -1,6 +1,6 @@
 // Content script: runs inside supported store pages and blocks real orders
 // while Guardrail is on.
-import { ENABLED_KEY, getEnabled } from './storage.ts'
+import { ENABLED_KEY, getEnabled, recordFakeOrder } from './storage.ts'
 import { findSite } from './sites.ts'
 import { readOrder } from './order.ts'
 import { showConfirmation } from './confirmation.ts'
@@ -39,7 +39,16 @@ function block(event: Event, how: string) {
   event.preventDefault()
   event.stopImmediatePropagation()
   console.log(`Guardrail: blocked order (${how}) on ${site?.name}`)
-  if (site) showConfirmation(readOrder(site), site.name)
+  if (!site) return
+  const order = readOrder(site)
+  if (showConfirmation(order, site.name)) {
+    recordFakeOrder({
+      store: site.name,
+      items: order.items,
+      total: order.total,
+      date: new Date().toISOString(),
+    })
+  }
 }
 
 // Listen on window in the capture phase, so these run before any of the

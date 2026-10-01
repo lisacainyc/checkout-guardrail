@@ -23,8 +23,10 @@ function el(tag: string, className: string, text = ''): HTMLElement {
   return element
 }
 
-export function showConfirmation(order: Order, storeName: string) {
-  if (open) return
+// Returns false if the screen was already open, so the caller doesn't
+// count the same order twice.
+export function showConfirmation(order: Order, storeName: string): boolean {
+  if (open) return false
   open = true
 
   const kept = order.total !== null ? formatMoney(order.total) : order.totalText || 'your money'
@@ -171,4 +173,5 @@ export function showConfirmation(order: Order, storeName: string) {
   document.addEventListener('keydown', onKeydown, true)
   document.documentElement.append(host)
   back.focus()
+  return true
 }
