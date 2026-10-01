@@ -44,3 +44,8 @@ export async function recordFakeOrder(order: FakeOrder): Promise<void> {
     [SAVED_TOTAL_KEY]: newTotal,
   })
 }
+
+// Sets the saved total back to $0 and clears the fake-order history.
+export async function resetSavedTotal(): Promise<void> {
+  await chrome.storage.local.set({ [FAKE_ORDERS_KEY]: [], [SAVED_TOTAL_KEY]: 0 })
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getEnabled, getFakeOrders, getSavedTotal, setEnabled } from './storage.ts'
+import { getEnabled, getFakeOrders, getSavedTotal, resetSavedTotal, setEnabled } from './storage.ts'
 import { findSite } from './sites.ts'
 
 // Name of the supported store open in the current tab, or null if it isn't one.
@@ -25,6 +25,10 @@ function formatMoney(amount: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
 }
 
+function orderCountText(count: number): string {
+  return `${count} fake ${count === 1 ? 'order' : 'orders'}`
+}
+
 function App() {
   // null while the saved state is still loading, so the switch never flickers.
   const [enabled, setEnabledState] = useState<boolean | null>(null)
@@ -32,6 +36,8 @@ function App() {
   // undefined while loading, null for an unsupported site.
   const [storeName, setStoreName] = useState<string | null | undefined>(undefined)
   const [error, setError] = useState<string | null>(null)
+  // True while asking "Reset to $0.00?", before anything is cleared.
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   useEffect(() => {
     getEnabled()
@@ -55,6 +61,11 @@ function App() {
     const next = !enabled
     setEnabledState(next)
     await setEnabled(next)
+  }
+
+  async function reset() {
+    await resetSavedTotal()
+    setConfirmingReset(false)
   }
 
   if (error) {
@@ -87,12 +98,36 @@ function App() {
         </p>
       )}
 
-      {stats && (
+      {stats && !confirmingReset && (
         <div className="stats">
           <p className="kept">You've kept {formatMoney(stats.savedTotal)}</p>
           <p className="count">
-            {stats.orderCount} fake {stats.orderCount === 1 ? 'order' : 'orders'}
+            {orderCountText(stats.orderCount)}
+            {(stats.savedTotal > 0 || stats.orderCount > 0) && (
+              <>
+                {' · '}
+                <button type="button" className="link" onClick={() => setConfirmingReset(true)}>
+                  Reset
+                </button>
+              </>
+            )}
           </p>
+        </div>
+      )}
+
+      {stats && confirmingReset && (
+        <div className="stats">
+          <p className="confirm">
+            Reset to $0.00? This clears {orderCountText(stats.orderCount)}.
+          </p>
+          <div className="confirm-buttons">
+            <button type="button" className="danger" onClick={reset}>
+              Reset
+            </button>
+            <button type="button" className="secondary" onClick={() => setConfirmingReset(false)}>
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </>

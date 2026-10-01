@@ -108,3 +108,48 @@ body {
 .status.unprotected::before {
   background: #b0b0b0;
 }
+
+/* A button that looks like a small text link. */
+.link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #666;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: #222;
+}
+
+.confirm {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.confirm-buttons button {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  font: 600 13px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.danger {
+  border: none;
+  background: #c0392b;
+  color: white;
+}
+
+.secondary {
+  border: 1px solid #ccc;
+  background: white;
+  color: #222;
+}
