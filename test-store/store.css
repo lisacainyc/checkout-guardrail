@@ -117,3 +117,10 @@ input {
   color: #c0392b;
   font-size: 36px;
 }
+
+.secondary {
+  width: 100%;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #ccc;
+}

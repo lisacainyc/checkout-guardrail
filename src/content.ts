@@ -33,9 +33,27 @@ function placeOrderButtonFor(target: EventTarget | null): Element | null {
   return target.closest(site.placeOrderSelectors.join(','))
 }
 
-// True if the form contains a place-order button, so submitting it places an order.
-function isOrderForm(form: HTMLFormElement): boolean {
+// True if the form contains a place-order button.
+function hasBuyButton(form: HTMLFormElement): boolean {
   return !!site && !!form.querySelector(site.placeOrderSelectors.join(','))
+}
+
+// Decides whether a form submit places an order. Some stores put buy and
+// non-buy buttons in one form (Amazon: Buy Now and Add to Cart), so look at
+// the button that triggered the submit, not just the form.
+function isOrderSubmit(form: HTMLFormElement, submitter: HTMLElement | null): boolean {
+  if (submitter) return !!placeOrderButtonFor(submitter)
+  // No triggering button (a script submitted the form). If the form could
+  // place an order, block it: when unsure, block.
+  return hasBuyButton(form)
+}
+
+// The button a form uses when Enter is pressed in one of its text fields:
+// its first submit button.
+function defaultButton(form: HTMLFormElement): HTMLElement | null {
+  return form.querySelector<HTMLElement>(
+    'button:not([type]), button[type="submit"], input[type="submit"], input[type="image"]',
+  )
 }
 
 function block(event: Event, how: string) {
@@ -227,7 +245,12 @@ if (site) {
   window.addEventListener(
     'submit',
     (event) => {
-      if (isActive() && event.target instanceof HTMLFormElement && isOrderForm(event.target)) {
+      if (
+        isActive() &&
+        event instanceof SubmitEvent &&
+        event.target instanceof HTMLFormElement &&
+        isOrderSubmit(event.target, event.submitter)
+      ) {
         block(event, 'form submit')
       }
     },
@@ -244,10 +267,11 @@ if (site) {
         block(event, 'Enter key')
         return
       }
-      // Enter inside a text field of the order form would submit the order too.
-      // Stop it silently: people press Enter after typing an address, and a
-      // surprise "Order confirmed" screen would be confusing.
-      if (target instanceof HTMLInputElement && target.form && isOrderForm(target.form)) {
+      // Enter inside a text field submits the form with its default button.
+      // If that's a buy button, stop it silently: people press Enter after
+      // typing an address, and a surprise "Order confirmed" would be confusing.
+      const form = target instanceof HTMLInputElement ? target.form : null
+      if (form && isOrderSubmit(form, defaultButton(form))) {
         event.preventDefault()
         event.stopImmediatePropagation()
       }

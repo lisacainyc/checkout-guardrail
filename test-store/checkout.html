@@ -46,6 +46,11 @@
 
         <input type="hidden" name="via" value="place-order" />
         <button type="submit" id="place-order" class="button primary">Place order</button>
+        <!-- A non-buy button in the same form as Place order, like Amazon's
+             Add to Cart next to Buy Now. OptOut must let it through. -->
+        <button type="submit" id="save-for-later" class="button secondary" formaction="saved-for-later.html">
+          Save cart for later
+        </button>
       </form>
     </main>
 
